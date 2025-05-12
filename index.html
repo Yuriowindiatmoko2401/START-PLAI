@@ -93,7 +93,7 @@
             <div class="flex flex-col lg:flex-row">
                 <!-- Side menu -->
                 <div class="lg:w-1/4 mb-8 lg:mb-0 lg:pr-8">
-                    <div class="tech-card rounded-lg p-4">
+                    <div id="side-menu" class="tech-card rounded-lg p-4">
                         <ul class="space-y-2">
                             <li class="p-2 bg-gray-800 rounded-md text-yellow-400 font-medium">
                                 <a href="#admissions" class="flex items-center">
@@ -116,7 +116,7 @@
                             <li class="p-2 hover:bg-gray-800 rounded-md transition">
                                 <a href="#scholarship" class="flex items-center">
                                     <i data-feather="award" class="mr-2 h-5 w-5"></i>
-                                    <span>Beasiswa</span>
+                                    <span>Biaya Kuliah</span>
                                 </a>
                             </li>
                             <li class="p-2 hover:bg-gray-800 rounded-md transition">
@@ -136,7 +136,7 @@
                         <div class="flex flex-col md:flex-row">
                             <div class="md:w-1/3 mb-6 md:mb-0 md:pr-6">
                                 <div class="rounded-lg w-full bg-gray-800 p-2 flex flex-col items-center justify-center text-center h-24 border border-gray-700">
-                                    <span class="text-yellow-500 font-bold text-base">PLAI</span><span class="px-0.5"></span><span class="text-white font-bold text-base">BMD</span>
+                                    <span class="text-yellow-500 font-bold text-base">PLAI <span class="text-white font-bold text-base">BMD</span></span><span class="px-0.5"></span>
                                     <p class="text-sm text-white font-bold mt-0.5">2025</p>
                                     <p class="text-xs text-gray-300 mt-1">Student Admissions</p>
                                 </div>
@@ -224,9 +224,9 @@
             
             <div class="flex justify-center mb-8">
                 <div class="inline-flex rounded-md shadow-sm" role="group">
-                    <button type="button" class="tab-btn active py-2 px-4 text-sm font-medium bg-gray-800 text-white rounded-l-lg rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:z-10 focus:ring-2 focus:ring-yellow-400" data-target="tab-regular">
+                    <!-- <button type="button" class="tab-btn active py-2 px-4 text-sm font-medium bg-gray-800 text-white rounded-l-lg rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:z-10 focus:ring-2 focus:ring-yellow-400" data-target="tab-regular">
                         Jalur Reguler
-                    </button>
+                    </button> -->
                     <!-- <button type="button" class="tab-btn py-2 px-4 text-sm font-medium bg-gray-800 text-white rounded-r-lg border border-gray-700 hover:bg-gray-700 focus:z-10 focus:ring-2 focus:ring-yellow-400" data-target="tab-nontest">
                         Jalur Non-Test
                     </button> -->
@@ -243,7 +243,7 @@
                             </div>
                         </div>
                         <h4 class="text-center text-yellow-400 font-medium mb-2">Pendaftaran Online</h4>
-                        <p class="text-sm text-gray-300 text-center">Isi formulir dan upload dokumen persyaratan</p>
+                        <p class="text-sm text-gray-300 text-center">Isi formulir dan upload dokumen bukti pendaftaran dan persyaratan</p>
                     </div>
                     
                     <div class="tech-card rounded-lg p-4 hover-lift">
@@ -619,6 +619,79 @@
         document.addEventListener('DOMContentLoaded', function() {
             feather.replace();
             
+            // Floating sidebar functionality
+            const sideMenu = document.getElementById('side-menu');
+            const admissionsSection = document.getElementById('admissions');
+            const sectionIds = ['admissions', 'requirements', 'process', 'scholarship', 'faq'];
+            
+            // Initial offset position of the side menu
+            let sideMenuInitialPos = sideMenu.getBoundingClientRect().top + window.scrollY;
+            
+            // Get the parent container width to maintain consistency
+            const sideMenuParent = sideMenu.parentElement;
+            const parentWidth = sideMenuParent.offsetWidth;
+            sideMenu.style.width = parentWidth + 'px';
+            
+            // Handle scroll event
+            window.addEventListener('scroll', function() {
+                // Check if we've scrolled past the initial position of the menu
+                if (window.scrollY >= sideMenuInitialPos - 20) {
+                    sideMenu.classList.add('sticky-menu');
+                    // Apply a placeholder to prevent content jump
+                    if (!document.getElementById('menu-placeholder')) {
+                        const placeholder = document.createElement('div');
+                        placeholder.id = 'menu-placeholder';
+                        placeholder.style.height = sideMenu.offsetHeight + 'px';
+                        sideMenuParent.appendChild(placeholder);
+                    }
+                } else {
+                    sideMenu.classList.remove('sticky-menu');
+                    // Remove placeholder when not sticky
+                    const placeholder = document.getElementById('menu-placeholder');
+                    if (placeholder) placeholder.remove();
+                }
+                
+                // Highlight current section in the menu
+                highlightCurrentSection();
+            });
+            
+            // Recalculate on window resize
+            window.addEventListener('resize', function() {
+                // Get the new position after resize
+                sideMenuInitialPos = admissionsSection.getBoundingClientRect().top + window.scrollY;
+            });
+            
+            // Function to highlight the current section in the menu
+            function highlightCurrentSection() {
+                // Get current scroll position
+                const scrollPosition = window.scrollY;
+                
+                // Find which section is currently visible
+                for (let i = sectionIds.length - 1; i >= 0; i--) {
+                    const section = document.getElementById(sectionIds[i]);
+                    const sectionTop = section.offsetTop;
+                    
+                    if (scrollPosition >= sectionTop - 100) { // 100px offset for better UX
+                        // Remove active class from all menu items
+                        const menuItems = document.querySelectorAll('#side-menu li');
+                        menuItems.forEach(item => {
+                            item.classList.remove('bg-gray-800', 'text-yellow-400', 'font-medium');
+                            item.classList.add('hover:bg-gray-800');
+                        });
+                        
+                        // Add active class to current section's menu item
+                        const activeItem = document.querySelector(`#side-menu a[href='#${sectionIds[i]}']`).parentElement;
+                        activeItem.classList.add('bg-gray-800', 'text-yellow-400', 'font-medium');
+                        activeItem.classList.remove('hover:bg-gray-800');
+                        
+                        break;
+                    }
+                }
+            }
+            
+            // Initialize the highlight
+            highlightCurrentSection();
+            
             // Mobile menu toggle
             const menuBtn = document.getElementById('menuBtn');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -734,7 +807,30 @@
                     updateCarousel();
                 });
             }
+            
+            // Button hover effect
+            const btns = document.querySelectorAll('.btn');
+            btns.forEach(btn => {
+                btn.addEventListener('mouseover', function() {
+                    btn.style.transform = 'translateY(-2px)';
+                    btn.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
+                });
+                btn.addEventListener('mouseout', function() {
+                    btn.style.transform = '';
+                    btn.style.boxShadow = '';
+                });
+            });
         });
     </script>
+    <style>
+        /* Sticky menu styles */
+        .sticky-menu {
+            position: fixed;
+            top: 80px; /* Adjusted for better alignment with header */
+            z-index: 40;
+            transition: none; /* Remove transition for exact positioning */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
 </body>
 </html>
